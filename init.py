@@ -1,6 +1,8 @@
 import pandas as pd
-import numpy as np 
 import sys, math, random
+import pickle
+
+from structs import *
 
 # column mappings
 cols = {
@@ -42,37 +44,10 @@ def get_schedule(data, pair):
 
 def has_partner(data_row):
   partname = data_row[cols['partname']]
-  return (not type(partname) is float and len(partname.strip().split(' ')) <= 2)
 
-class Participant:
-  def __init__(self, name, schedule):
-    self.name = name
-    self.schedule = schedule
-
-    self.dead = False
-
-  def kill(self):
-    self.dead = True
-
-  def __str__(self):
-    return ('%s: %s' % (self.name, self.schedule))
-
-  def __repr__(self):
-    return self.__str__()
-
-class Pair:
-  def __init__(self, part1, part2):
-    self.part1 = part1
-    self.part2 = part2
-
-  def set_target(self, target):
-    self.target = target
-
-  def __str__(self):
-    return ('Partner 1: %s\nPartner 2: %s\n' % (self.part1, self.part2))
-
-  def __repr__(self):
-    return self.__str__()
+  pred = not type(partname) is float and len(partname.strip().split(' ')) <= 2
+  pred = pred and type(data_row[cols['partclass1']]) is not float
+  return pred
 
 def main():
   data = pd.read_csv("data/signups.csv")
@@ -90,6 +65,10 @@ def main():
   print('unpartnered', unpartnered)
 
   unpart_names = set(unpartnered.keys())
+  edge = ('Vinh Doan', 'Renu')
+  unpart_names = unpart_names - set(edge)
+  partners_raw[edge] = (unpartnered[edge[0]], unpartnered[edge[1]])
+
   while (len(unpart_names)) > 1:
     pair_raw = random.sample(unpart_names, 2)
     unpart_names = unpart_names - set(pair_raw)
@@ -110,7 +89,8 @@ def main():
     pair = Pair(part1, part2)
     partners.append(pair)
 
-  print(partners)
+  #with open('data/partners.pkl', 'wb') as f:
+  #  pickle.dump(partners, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 if __name__ == '__main__':
   main()
