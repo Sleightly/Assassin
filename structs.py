@@ -8,6 +8,9 @@ class Participant:
   def kill(self):
     self.dead = True
 
+  def revive(self):
+    self.dead = False
+
   def schedule_pretty(self):
     sched = ''
     for s in self.schedule:
